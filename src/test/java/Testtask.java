@@ -44,7 +44,7 @@ public class Testtask {
     TaskQueue<Order> queue=new BlockedTaskQueue<>(200);
     //建立4个并行的订单处理线程
     List<CompletableFuture<Void>> consumeTasks=new ArrayList<>();
-    for (int i=0;i<20;i++){
+    for (int i=0;i<threadPool.getCorePoolSize();i++){
       consumeTasks.add(CompletableFuture.runAsync(()->{
         do {
           Order order= queue.poll(1000);
@@ -57,7 +57,6 @@ public class Testtask {
             System.out.println(String.format("完成%d,当前线程:%d,剩余任务:%d,队列真实任务:%d",order.getOrderId(),Thread.currentThread().getId(),queue.count(),queue.queueCount()));
           }
         }while (!done.get());
-        queue.close();
       },threadPool));
     }
 
@@ -77,17 +76,18 @@ public class Testtask {
     }while(queue.count()>0);
     done.set(true);
     CompletableFuture.allOf(consumeTasks.toArray(new CompletableFuture[0])).join();
+    queue.close();
     System.out.println("完成");
   }
   @Test
   public void testRedisTask() throws InterruptedException {
     AtomicBoolean done= new AtomicBoolean(false);
+    TaskQueue<Order> queue=new RedisJsonTaskQueue<Order>("localhost", 6379, "12345678", "order-queue", 200, new TypeReference<Order>() {
+    },threadPool.getCorePoolSize());
     //建立4个并行的订单处理线程
     List<CompletableFuture<Void>> consumeTasks=new ArrayList<>();
-    for (int i=0;i<20;i++){
+    for (int i=0;i<threadPool.getCorePoolSize();i++){
       consumeTasks.add(CompletableFuture.runAsync(()->{
-        TaskQueue<Order> queue=new RedisJsonTaskQueue<Order>("localhost", 6379, "12345678", "order-queue", 200, new TypeReference<Order>() {
-        });
         do {
           Order order= queue.poll(1000);
           if (order!=null){
@@ -99,13 +99,10 @@ public class Testtask {
             System.out.println(String.format("完成%d,当前线程:%d,剩余任务:%d,队列真实任务:%d",order.getOrderId(),Thread.currentThread().getId(),queue.count(),queue.queueCount()));
           }
         }while (!done.get());
-        queue.close();
       },threadPool));
     }
 
     //提供订单任务
-    TaskQueue<Order> queue=new RedisJsonTaskQueue<Order>("localhost", 6379, "12345678", "order-queue", 200, new TypeReference<Order>() {
-    });
     for (int i=0;i<1000;i++){
       if (!queue.offer(new Order(i, BigDecimal.valueOf(i)),2000)){
         System.out.println("投递任务失败:"+i+",当前任务队列数:"+queue.count());
@@ -120,6 +117,7 @@ public class Testtask {
     }while(queue.count()>0);
     done.set(true);
     CompletableFuture.allOf(consumeTasks.toArray(new CompletableFuture[0])).join();
+    queue.close();
     System.out.println("完成");
   }
 }

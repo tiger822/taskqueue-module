@@ -33,7 +33,7 @@ public class BlockedTaskQueue<T> extends ArrayBlockingQueue<T> implements TaskQu
       return offer(task);
     }
     try {
-      return super.offer(task,milliSecondsToWait[0], TimeUnit.MILLISECONDS);
+      return offer(task,milliSecondsToWait[0], TimeUnit.MILLISECONDS);
     } catch (InterruptedException e) {
       e.printStackTrace();
       return false;
