@@ -69,15 +69,14 @@ public class Testtask {
       else{
         System.out.println("投递任务成功:"+i+",当前任务队列数:"+queue.count());
       }
-      Thread.sleep(200);
+     // Thread.sleep(200);
       //System.out.println("队列数:"+queue.count());
     }
     do {
       Thread.sleep(1000);
     }while(queue.count()>0);
-    Thread.sleep(2000);
     done.set(true);
-    CompletableFuture.allOf(consumeTasks.toArray(new CompletableFuture[0]));
+    CompletableFuture.allOf(consumeTasks.toArray(new CompletableFuture[0])).join();
     System.out.println("完成");
   }
   @Test
@@ -119,9 +118,8 @@ public class Testtask {
     do {
       Thread.sleep(1000);
     }while(queue.count()>0);
-    Thread.sleep(2000);
     done.set(true);
-    CompletableFuture.allOf(consumeTasks.toArray(new CompletableFuture[0]));
+    CompletableFuture.allOf(consumeTasks.toArray(new CompletableFuture[0])).join();
     System.out.println("完成");
   }
 }

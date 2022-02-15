@@ -12,7 +12,7 @@ import java.util.function.Function;
 /**
  * Created by rocklee on 2022/2/14 14:27
  */
-public class RedisTaskQueue<T extends AbstractTask> implements TaskQueue<T> ,AutoCloseable{
+public class RedisTaskQueue<T > implements TaskQueue<T> ,AutoCloseable{
   private Jedis jedis;
   private final int capacity;
   private final String taskName;

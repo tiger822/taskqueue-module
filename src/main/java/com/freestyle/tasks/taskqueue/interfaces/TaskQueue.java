@@ -7,7 +7,7 @@ import java.util.function.Function;
 /**
  * Created by rocklee on 2022/2/14 14:19
  */
-public interface TaskQueue<T extends AbstractTask> {
+public interface TaskQueue<T> {
   boolean offer(T task, long ...milliSecondsToWait);
   <T> T poll(long milliSecondsToWait);
   //获取任务队列长度

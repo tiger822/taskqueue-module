@@ -11,7 +11,7 @@ import java.util.function.Function;
  * 内存版任务队列
  * Created by rocklee on 2022/2/15 14:32
  */
-public class BlockedTaskQueue<T extends AbstractTask> extends ArrayBlockingQueue<T> implements TaskQueue<T> {
+public class BlockedTaskQueue<T> extends ArrayBlockingQueue<T> implements TaskQueue<T> {
   private int capacity;
   public BlockedTaskQueue(int capacity) {
     super(capacity);
